@@ -24,13 +24,78 @@ library(tidyverse)
 ui <- fluidPage(
   useShinyjs(), # Enable shinyjs for dynamic UI effects
   tags$head(
+    tags$meta(charset="utf-8"),
+    tags$meta(name="viewport", content="width=device-width, initial-scale=1"),
+    tags$title("Florida Legislature Dashboard • The Tributary"),
+    tags$link(rel="icon", href="https://jaxtrib.org/wp-content/uploads/2021/06/cropped-favicon-32x32.png", sizes="32x32"),
+    tags$link(rel="icon", href="https://i2.wp.com/jaxtrib.org/wp-content/uploads/2021/06/cropped-favicon.png?fit=192%2C192&ssl=1", sizes="192x192"),
+    tags$meta(name="robots",content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"),
+    tags$meta(name="google-site-verification",content="c-p4lmvJsiiQlKV2swCEQsMzWP3CX46GCRBL7WXjVxk"),
+    tags$meta(name="description",content="Explore the interactive dashboard for insights into the Florida Legislature's voting patterns, presented by The Tributary."),
+    tags$meta(property="og:locale",content="en_US"),
+    tags$meta(property="og:type",content="website"),
+    tags$meta(property="og:title",content="Florida Legislature Voting Dashboard • The Tributary"),
+    tags$meta(property="og:description",content="Explore the interactive dashboard for insights into the Florida Legislature's voting patterns, presented by The Tributary."),
+    tags$meta(property="og:url",content="https://data.jaxtrib.org/legislator_dashboard"),
+    tags$meta(property="og:site_name",content="The Tributary"),
+    tags$meta(property="article:publisher",content="https://data.tributary.org/legislature_dashboard.png"),
+    tags$meta(property="og:image:type",content="image/png"),
+    tags$meta(name="twitter:card",content="summary_large_image"),
+    tags$meta(charset="utf-8"),
+    tags$title("Interactive Dashboard • The Tributary"),
+    tags$meta(name="viewport", content="width=device-width, initial-scale=1"),
+    tags$link(rel="icon", href="https://jaxtrib.org/wp-content/uploads/2021/06/cropped-favicon-32x32.png", sizes="32x32"),
+    tags$link(rel="icon", href="https://i2.wp.com/jaxtrib.org/wp-content/uploads/2021/06/cropped-favicon.png?fit=192%2C192&ssl=1", sizes="192x192"),
+    # Twitter meta tags
+    tags$meta(name="twitter:title", content="Florida Legislature Voting Dashboard • The Tributary"),
+    tags$meta(name="twitter:description", content="Explore the interactive dashboard for insights into the Florida Legislature's voting patterns, presented by The Tributary."),
+    tags$meta(name="twitter:image", content="https://data.tributary.org/legislature_dashboard.png"),
+    tags$meta(name="twitter:creator", content="@APantazi"),
+    tags$meta(name="twitter:site", content="@TheJaxTrib"),
+    tags$meta(name="twitter:label1", content="Written by"),
+    tags$meta(name="twitter:data1", content="Andrew Pantazi"),
+    # Facebook meta tag
+    tags$meta(property="fb:pages", content="399115500554052"),
+    # Additional meta tags
+    tags$meta(name="theme-color", content="#fff"),
+    tags$meta(name="apple-mobile-web-app-capable", content="yes"),
+    tags$meta(name="mobile-web-app-capable", content="yes"),
+    tags$meta(name="apple-touch-fullscreen", content="YES"),
+    tags$meta(name="apple-mobile-web-app-title", content="The Tributary"),
+    tags$meta(name="application-name", content="The Tributary"),
+    tags$meta(property="article:published_time", content="2024-02-22T03:02:59+00:00"),
+    tags$meta(property="article:modified_time", content="2024-02-22T03:02:59+00:00"),
+
     tags$link(href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;1,500;1,600&display=swap", rel="stylesheet"),
+    
+
     tags$style(HTML("
+     button.btn-filter.active-filter {
+      color: white !important;
+    transform: scale(1.1);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+    background-color:#ccc;
+    }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Archivo', sans-serif;
+        background-color: #fff;
+      }
+      .banner {
+        background-color: #064875; /* Adjust the background color as needed */
+        padding: 10px 0;
+        text-align: center;
+        height: 10vh;
+      }
+      img.logo-img {
+        height: 80px; /* Adjust the logo size as needed */
+      }
         @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;1,500;1,600&display=swap');
         body { font-family: 'Georgia', serif; background-color: #fbfdfb; display: flex; flex-wrap: wrap; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Archivo', sans-serif; color: #064875; text-transform: uppercase; }
         h2{ display: flex;align-items: center;justify-content: center;align-content: center;flex-wrap: wrap;}
-        .filter-group { display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; width: 100%;flex-direction: row;align-content: center }
+        .filter-group { display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: flex-start; width: 100%;flex-direction: row;align-content: center }
         .filter-section { margin: 5px;flex-basis: calc(33.333% - 10px);box-sizing: border-box;display: flex;flex-direction: column;flex-wrap: wrap;align-content: center;justify-content: center;align-items: center;}
         .btn-filter { margin: 5px; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; width: 30%; min-width: 80px; box-sizing: border-box; background-color: #098677; color: white; font-family: 'Archivo', sans-serif; 
         }
@@ -42,8 +107,10 @@ ui <- fluidPage(
         .btn-role.Sen { background-color: #064875; color: white; }
         .btn-final.Y { background-color: #750648; color: white; }
         .btn-final.N { background-color: #355604; color: white; }
-        .btn-filter.selected { filter: brightness(75%); }
-        .content { display: flex; justify-content: space-evenly; width: 100%; }
+.btn-filter.selected {
+    filter: saturate(1.5) brightness(1.25) contrast(1.25);
+    transform: scale(1.1);
+}        .content { display: flex; justify-content: space-evenly; width: 100%; }
         .votes-section { width: 65%; }
         .legislator-profile { border: 1px solid #ddd; padding: 20px; border-radius: 15px; width: 35%; margin-inline: 4%; }
         .vote-link { cursor: pointer; text-decoration: underline; color: blue; }
@@ -54,13 +121,14 @@ ui <- fluidPage(
         .profile-filter-section{margin-block: 5%;line-height: 1.5;}
         label#voteType-label {line-height: .95;}
         .vote-details-button { background-color: #064875; color: #fbfdfb; display:flex;justify-content:center;align-items:center;  font-size: 1.5rem; width: auto;}
-        .navigation{background-color:#fbf7ed;display: flex;flex-direction: row;flex-wrap: wrap;align-content: center;justify-content: space-evenly;align-items: center;margin-top: 10px;}
+        .navigation{background-color:#fbf7ed;display: flex;flex-direction: row;flex-wrap: wrap;align-content: center;justify-content: space-evenly;align-items: center;margin-top: 10px;padding-top:10px;}
         label #items_per_page-label{font-size:1.2rem;}
         .items{font-size:1.2rem;}
         .btn-page:hover, .vote-link:hover, .info-button:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         } 
+        .container-fluid{padding:0px;}
   div#filterFeedback {
       display: flex;
       align-items: center;
@@ -119,8 +187,17 @@ div#filter-info {
     flex-direction: row;
     justify-content: center;
 }
+.navigation .form-group.shiny-input-container{width:max-content;padding:1px;}
+.form-group.shiny-input-container{padding:1px;}
       "))
   ),
+
+# Body content
+div(class="banner",
+    tags$a(href="https://jaxtrib.org/", 
+           tags$img(src="https://jaxtrib.org/wp-content/uploads/2021/09/TRB_TributaryLogo_NoTagline_White.png", class="logo-img", alt="The Tributary")
+    )
+),
   titlePanel("Legislator Voting Patterns Dashboard"),
   div(class="filter-group",
       div(class="filter-section", span("Party:"), actionButton("btn_party_R", "R", class="btn-filter btn-party R"), actionButton("btn_party_D", "D", class="btn-filter btn-party D")),
@@ -138,18 +215,24 @@ div#filter-info {
       div(class="votes-section", uiOutput("votesDisplay")),
       div(class="legislator-profile",
           actionButton("view_liberal_conservative", HTML("Liberal/Conservative<br>Rankings"),
-                                                    class = "btn btn-primary", onclick = "window.location.href='https://data.jaxtrib.org/legislator_heatmap';"),      div(class="filter-section",selectInput("session_year","Select Session Year:",choices = NULL,selected = NULL,multiple = TRUE,width = '100%')),
+                                                    class = "btn btn-primary", onclick = "window.location.href='https://data.jaxtrib.org/legislator_heatmap';"),            div(class = "filter-section",
+                                                                                                                                                                                span("Session Year:"),
+                                                                                                                                                                                actionButton("btn_year_2023", "2023", class = "btn-filter"),
+                                                                                                                                                                                actionButton("btn_year_2024", "2024", class = "btn-filter")
+                                                    ),
           uiOutput("legislatorProfile"),
           div(class="profile-filter-section", checkboxGroupInput("voteType", label=HTML('Key Vote Type: <button id="info" type="button" class="btn btn-default action-button shiny-bound-input" onclick="Shiny.setInputValue(\'info_clicked\', true, {priority: \'event\'});"><i class="fas fa-info-circle"></i></button>'), choices=list("Voted Against Both Parties"="Independent", "Voted With Other Party"="Maverick", "Voted With Own Party"="Normal")))
       )
   ),
-  div(class="navigation",
-      actionButton("first_page", "First", class="btn-page"),
-      actionButton("prev_page", "Previous", class="btn-page"),
-      textOutput("page_info"),
-      actionButton("next_page", "Next", class="btn-page"),
-      actionButton("last_page", "Last", class="btn-page"),
-      selectInput("items_per_page", "Items per Page:",choices = c(20, 50, 100), selected = 20)),
+div(class="navigation",
+    actionButton("first_page", "First", class="btn-page"),
+    actionButton("prev_page", "Previous", class="btn-page"),
+    uiOutput("page_info"),  # Changed from textOutput to uiOutput
+    actionButton("next_page", "Next", class="btn-page"),
+    actionButton("last_page", "Last", class="btn-page"),
+    selectInput("items_per_page", "Items per Page:", choices = c(20, 50, 100), selected = 20)
+),
+
   tags$script(HTML('
       $(document).on("click", "#info", function() {
       // Trigger a Shiny event when the info button is clicked
@@ -183,16 +266,50 @@ div#filter-info {
 
 server <- function(input, output, session) {
   # Initialize reactive values to store filter states
-  values <- reactiveValues(party = character(0), role = character(0), final = character(0))
-  
+  values <- reactiveValues(party = character(0), role = character(0), final = character(0),selectedYears = list(),  year2023Active = FALSE,
+                           year2024Active = FALSE)
+
   all_legislators <- unique(heatmap_data$name)
   all_legislators_with_all <- c("All" = "All", all_legislators) #not working, also below I changed the filter away from the >0 length to != "all"
   
-  updateSelectizeInput(session, "legislator", choices = all_legislators_with_all, server = TRUE)
+  observeEvent(input$btn_year_2023, {
+    values$year2023Active <- !values$year2023Active
+  })
+  
   observe({
-    updateSelectInput(session, "session_year", 
-                      choices = sort(unique(heatmap_data$session_year)),
-                      selected = sort(unique(heatmap_data$session_year)))
+    shinyjs::toggleClass("btn_year_2023", "active-filter", values$year2023Active)
+  })
+  
+  
+  observeEvent(input$btn_year_2024, {
+    values$year2024Active <- !values$year2024Active
+  })
+  
+  observe({
+    shinyjs::toggleClass("btn_year_2024", "active-filter", values$year2024Active)
+  })
+  
+    observeEvent(input$btn_year_2023, {
+    if("2023" %in% values$selectedYears) {
+      values$selectedYears <- values$selectedYears[values$selectedYears != "2023"]
+      
+    } else {
+      values$selectedYears <- c(values$selectedYears, "2023")
+    }
+  })
+  
+  observeEvent(input$btn_year_2024, {
+    if("2024" %in% values$selectedYears) {
+      values$selectedYears <- values$selectedYears[values$selectedYears != "2024"]
+      
+    } else {
+      values$selectedYears <- c(values$selectedYears, "2024")
+    }
+  })
+  observe({
+    shinyjs::toggleClass("btn_year_2023", "active-filter", values$year2023Active)
+    shinyjs::toggleClass("btn_year_2024", "active-filter", values$year2024Active)
+    # Repeat for other buttons as needed
   })
   
   output$votefilterinfo <- renderUI({
@@ -283,9 +400,11 @@ server <- function(input, output, session) {
     if (!is.null(input$legislator) && input$legislator != "All") {
       data <- data %>% filter(grepl(input$legislator, name, fixed = TRUE))
     }
-    if (!is.null(input$session_year) && length(input$session_year) > 0) {
-      data <- data %>% filter(session_year %in% input$session_year)
+    
+    if(length(values$selectedYears) > 0) {
+      data <- data %>% filter(session_year %in% values$selectedYears)
     }
+    
     data
   })
   
@@ -309,6 +428,9 @@ server <- function(input, output, session) {
     }
     if ("Normal" %in% input$voteType) {
       data <- data %>% filter(maverick_votes == 0 & vote_with_neither == 0)
+    }
+    if(length(values$selectedYears) > 0) {
+      data <- data %>% filter(session_year %in% values$selectedYears)
     }
     # Remember the current selection to possibly reapply it later
     data
@@ -522,15 +644,23 @@ server <- function(input, output, session) {
     shinyjs::toggleState("last_page", condition = current_page() < total_pages)
   })
   
-  output$page_info <- renderText({
+  output$page_info <- renderUI({
     total_items <- nrow(filtered_data())
     start_item <- (current_page() - 1) * items_per_page() + 1
     end_item <- min(start_item + items_per_page() - 1, total_items)
-    paste("Showing items", start_item, "to", end_item, "of", total_items)
+    
+    # Using HTML() to include a line break (<br>) or any other HTML tags
+    formatted_start_item <- format(start_item, big.mark = ",")
+    formatted_end_item <- format(end_item, big.mark = ",")
+    formatted_total_items <- format(total_items, big.mark = ",")
+    
+    HTML(paste0("Showing items ", formatted_start_item, " to<br>", formatted_end_item, " of ", formatted_total_items))
   })
+  
   output$filterFeedback <- renderText({
     filtered_count <- nrow(filtered_data())
-    paste("Showing", filtered_count, "results based on current filters.")
+    formatted_count <- format(filtered_count, big.mark = ",")
+    paste("Showing", formatted_count, "results based on current filters.")
   })
   
   shinyjs::runjs('
