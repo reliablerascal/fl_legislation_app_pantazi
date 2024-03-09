@@ -16,8 +16,6 @@ library(ggplot2)
 
 heatmap_data <- heatmap_data %>% filter(pct!= 1 & pct != 0)
 
-
-
 ui <- fluidPage(
   tags$head(
     tags$meta(charset="utf-8"),
@@ -195,18 +193,15 @@ div#filter-info {
   div(class="filter-row",style="display:flex; justify-content: space-evenly;margin-top:1.5vw; margin-bottom: 0px;padding-bottom:0px;margin-left:10vw;margin-right:10vw;",
       div(class = "filter-party", selectInput("party", "Select Party:", choices = c("D", "R"))),
       div(class = "filter-role", selectInput("role", "Select Chamber:", choices = c("House" = "Rep", "Senate" = "Sen"))),
-      div(class = "filter-vote-type", 
-          selectInput("vote_type", "Select Vote Type:", 
-                      choices = c("All", "With Party", "Independent Vote", "Maverick Votes"), 
-                      selected = "All")),
-      
-#div(class = "filter-term",selectInput("term", "Select Term:",choices = c("2013-2014","2015-2016","2017-2018","2019-2020","2021-2022", "2023-2024"),selected = "2023-2024")),
+
+div(class = "filter-year",selectInput("year", "Select Session Year:",choices = c(2023,2024,"All"),selected = 2024)),
+
       div(class = "filter-final", 
           selectInput("final", "Final (Third Reading) Vote?", 
                       choices = c("Y","N","All"), 
                       selected = "Y"))
   ),
-  plotlyOutput("heatmapPlot", height = "200vh") # Adjust plot height as needed
+  plotlyOutput("heatmapPlot", height = "190vh") # Adjust plot height as needed
 )
 
 
@@ -214,7 +209,7 @@ div#filter-info {
 server <- function(input, output) {
   output$dynamicTitle <- renderUI({
     
-    #year <- input$term
+    year <- input$year
     
     partytext <- if(input$party == "D") "Democrats" else if(input$party == "R") "Republicans" else "All Parties"
     roleTitle <- if(input$role == "Rep") "Florida House" else if(input$role == "Sen") "Florida Senate" else "Florida Legislature"
@@ -232,7 +227,8 @@ server <- function(input, output) {
   filteredData <- reactive({
     data <- heatmap_data 
     # Apply filters based on input
-#    if (input$term != "All") {data <- data %>% filter(two_year_period == input$term)}
+    if (input$year != "All") {data <- data %>% filter(year == input$year)}
+    
     if (input$final != "All") {
       data <- data %>% filter(final == input$final)
     }
@@ -245,9 +241,7 @@ server <- function(input, output) {
         data <- data %>% dplyr::filter(roll_call_id %in% r_votes$roll_call_id)
       }
     }
-    if (input$vote_type != "All") {
-      data <- data %>% dplyr::filter(as.character(partisan_metric2) == input$vote_type)
-    }
+    
     if (input$role != "All") {
       data <- data %>% dplyr::filter(role == input$role)
     }
@@ -260,21 +254,7 @@ server <- function(input, output) {
     low_color <- if(input$party == "D") "#4575b4" else if(input$party == "R") "#d73027" else "#4575b4"
     mid_color <- "#6DA832"
     high_color <- if(input$party == "D") "#d73027" else if(input$party == "R") "#4575b4" else "#d73027"
-    #levels_partisan_metric <- unique(data$partisan_metric2)
-    
-    # Define dynamic color mapping based on the party input
-    #color_mapping <- #if(input$party == "D") {
-    #c(#"With Party" = "#4575b4", 
-    #  "Independent Vote" = "green", "Maverick Votes" = "#d73027")
-    #} else if(input$party == "R") {
-    #  c("With Party" = "#d73027", "Independent Vote" = "green", "Maverick Votes" = "#4575b4")
-    # } else {
-    #  c("With Party" = "#4575b4", "Independent Vote" = "green", "Maverick Votes" = "#d73027") # Default or other parties
-    # }
-    
-    # Apply dynamic color mapping based on the party selection and the vote type
-    #dynamic_colors <- sapply(data$partisan_metric2, function(metric) color_mapping(input$party)[metric])
-    
+
     # Generate the plot
     p <- ggplot(data, aes(x = name, y = as.factor(roll_call_id), fill = partisan_metric2, text = hover_text)) +
       geom_tile(color = "white", linewidth = 0.1) +
@@ -298,8 +278,8 @@ server <- function(input, output) {
              font = list(family = "Archivo"),
              margin = list(t=85), #list(l = 0, r = 0, t = 60, b = 10),  # Adjust margins to ensure the full title and subtitle are visible,
              annotations = list(
-               x = 1.0, 
-               y = 1.075,  # Position the annotation at the top center
+               x = 0.95, 
+               y = 1.1,  # Position the annotation at the top center
                xref = 'paper', 
                yref = 'paper',
                text = 'Source: Florida Legislature Voting Records via LegiScan. Analysis by Andrew Pantazi',
