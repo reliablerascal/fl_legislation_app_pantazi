@@ -1,5 +1,5 @@
-#setwd("C:/Users/Andrew/Documents/legiscan/heatmap/")
-#save.image("data.RData")
+### heatmap tile ###
+# add in filter by legislator & ability to click to vote & click on legislator & filter by vote type
 load("data.RData")
 
 library(foreach)
@@ -14,7 +14,7 @@ library(tidyr)
 library(tibble)
 library(ggplot2)
 
-heatmap_data <- heatmap_data %>% filter(pct!= 1 & pct != 0)
+heatmap_data <- heatmap_data %>% filter(true_pct!= 1 & true_pct != 0)
 
 ui <- fluidPage(
   tags$head(
@@ -201,7 +201,9 @@ div(class = "filter-year",selectInput("year", "Select Session Year:",choices = c
                       choices = c("Y","N","All"), 
                       selected = "Y"))
   ),
-  plotlyOutput("heatmapPlot", height = "190vh") # Adjust plot height as needed
+  plotlyOutput("heatmapPlot"#, height = "150vh"
+               ) # Adjust plot height as needed
+
 )
 
 
@@ -221,7 +223,7 @@ server <- function(input, output) {
     color2hex <-if(input$party == "D") "#4575b4" else if(input$party == "R") "#d73027"
     HTML(paste0("<h2 style='text-align: center;'>", fullTitle, "</h2>
                 <span style='font-size: 14px;line-height:0.5;'>\n<b style ='font-size:1.75rem;color: ",color1hex,";'>",color1," votes</b>: Legislator aligned <i>against</i> most ",partytext," and <i>with</i> most ",partytext2,".</span>
-                <span style='font-size: 14px;line-height:0.5;'>\n<b style='font-size:1.75rem;color:",color2hex,";'>",color2," votes</b>: Legislator aligned <i>with</i> most ",partytext, ".</span>","<span style='font-size: 14px;line-height:0.5;'>\n<b style='color: #6DA832;font-size:1.75rem;'>Green votes</b>: Legislator aligned <i>against</i> both parties in bipartisan decisions.<br/><br/>\nBlank spaces indicate the legislators did not vote, either because they weren't assigned to those committees or they missed those votes.\n</span><span style='font-size: 14px;'>Displayed votes exclude ones where all members of a party voted unanimously. The table includes both amendment and bill votes.</span>"))
+                <span style='font-size: 14px;line-height:0.5;'>\n<b style='font-size:1.75rem;color:",color2hex,";'>",color2," votes</b>: Legislator aligned <i>with</i> most ",partytext, ".</span>","<span style='font-size: 14px;line-height:0.5;'>\n<b style='color: #6DA832;font-size:1.75rem;'>Green votes</b>: Legislator aligned <i>against</i> both parties in bipartisan decisions.<br/><br/>\nBlank spaces indicate the legislators did not vote, either because they weren't assigned to those committees or they missed those votes.\n</span><span style='font-size: 14px;'>Displayed votes exclude ones where all members of a party voted unanimously. The table includes both amendment and bill votes. Data comes from the Florida Legislature's voting records via the Legiscan API.</span>"))
   })
   
   filteredData <- reactive({
@@ -251,6 +253,15 @@ server <- function(input, output) {
   output$heatmapPlot <- renderPlotly({
     data <- filteredData()
     # Determine colors based on party
+    
+    numBills <- n_distinct(data$roll_call_id) # Adjust with your actual identifier
+    
+    # Dynamic height calculation
+    baseHeight <- 500 # Minimum height
+    perBillHeight <- 10 # Height per bill
+    totalHeight <- baseHeight + (numBills * perBillHeight) # Total dynamic height
+    
+    
     low_color <- if(input$party == "D") "#4575b4" else if(input$party == "R") "#d73027" else "#4575b4"
     mid_color <- "#6DA832"
     high_color <- if(input$party == "D") "#d73027" else if(input$party == "R") "#4575b4" else "#d73027"
@@ -277,22 +288,24 @@ server <- function(input, output) {
       layout(autosize=TRUE,xaxis=list(side="top"),
              font = list(family = "Archivo"),
              margin = list(t=85), #list(l = 0, r = 0, t = 60, b = 10),  # Adjust margins to ensure the full title and subtitle are visible,
-             annotations = list(
-               x = 0.95, 
-               y = 1.1,  # Position the annotation at the top center
-               xref = 'paper', 
-               yref = 'paper',
-               text = 'Source: Florida Legislature Voting Records via LegiScan. Analysis by Andrew Pantazi',
-               showarrow = FALSE,
-               xanchor = 'right',
-               yanchor = 'bottom',
-               font = list(size = 11,family="Archivo")  # Adjust font size as needed
-             ) ,
+            # annotations = list(
+            #   x = 0.95, 
+            #   y = 1.1,  # Position the annotation at the top center
+            #   xref = 'paper', 
+            #   yref = 'paper',
+            #   text = 'Source: Florida Legislature Voting Records via LegiScan. Analysis by Andrew Pantazi',
+            #   showarrow = FALSE,
+            #   xanchor = 'right',
+            #   yanchor = 'bottom',
+            #   font = list(size = 11,family="Archivo")  # Adjust font size as needed
+            # ) ,
              plot_bgcolor = "rgba(255,255,255,0.85)",  # Transparent plot background
-             paper_bgcolor = "rgba(255,255,255,0.85)"
+             paper_bgcolor = "rgba(255,255,255,0.85)",
+            height = totalHeight
       ) %>% 
       config(displayModeBar = FALSE)
   })
+  
 }
 
 shinyApp(ui, server)
