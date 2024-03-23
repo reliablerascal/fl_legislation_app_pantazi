@@ -1,6 +1,5 @@
+### Dashboard-notheatmap ###
 load("data.RData")
-#load("C:/Users/Andrew/Documents/legiscan/legislators/data5.RData")
-#save.image("C:/Users/Andrew/Documents/legiscan/legislators/data5.RData")
 library(foreach)
 library(shinyjs)
 library(profvis)
@@ -541,7 +540,7 @@ server <- function(input, output, session) {
             lapply(unique(bill_data$roll_call_id), function(roll_call) {
               roll_call_data <- bill_data[bill_data$roll_call_id == roll_call, ]
               
-              pct_yes <- paste0(round(roll_call_data$pct[1] * 100, 2), "%")
+              pct_yes <- paste0(round(roll_call_data$true_pct[1] * 100, 2), "%")
               date_format <- format(as.Date(roll_call_data$date),"%b %d, %Y")
               special_vote_class <- ifelse(roll_call_data$vote_with_neither[1] == 1, "independent-vote",
                                            ifelse(roll_call_data$maverick_votes[1] == 1, "maverick-vote", "regular-vote"))
@@ -556,7 +555,7 @@ server <- function(input, output, session) {
               
               div(class = paste("votes",special_vote_class), 
                   HTML(paste0(
-                    "<p>",roll_call_data$desc," - <b>", date_format,"</b></p><p>", pct_yes, " of legislators voted Yea. </p><p>", special_vote_text, "</p><p>", legislator_vote,"</p><p class='disclaimer'><i>This vote wasn't necessarily a vote of the bill, and it could have been a vote on an amendment. For more details, examine the bill's vote information on the <a href='",roll_call_data$state_link,"' target='_blank'>Legislature's website.</a></i></p>"))
+                    "<p>",roll_call_data$desc," - <b>", date_format,"</b></p><p>", pct_yes, " of legislators voted Yea. </p><p>", special_vote_text, "</p><p>", legislator_vote,"</p><p class='disclaimer'><i>This vote wasn't necessarily a vote of the bill, and it could have been a vote on an amendment. For more details, examine the bill's <a href='",roll_call_data$state_link,"' target='_blank'>vote information</a> on the Legislature's website or examine the <a href='", bill_data$url[1], "' target='_blank'>bill page.</a></i></p>"))
               )
             }) #close lapply
           ) #close vote detail div
