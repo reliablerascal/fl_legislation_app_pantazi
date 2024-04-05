@@ -9,18 +9,13 @@ RUN apt-get update && apt-get install -y \
     libssh2-1-dev
 
 # Install R packages
-RUN R -e "install.packages(c('shiny', 'shinyjs', 'DT', 'data.table', 'plotly', 'shinyWidgets', 'jsonlite', 'lubridate', 'stringr', 'foreach', 'profvis'), repos='https://cloud.r-project.org/')"
-
-RUN mkdir -p /srv/shiny-server/dashboard
-RUN mkdir -p /srv/shiny-server/heatmap
+RUN R -e "install.packages(c('shiny', 'shinyjs', 'DT', 'data.table', 'plotly', 'shinyWidgets', 'jsonlite', 'lubridate', 'stringr', 'foreach','shinythemes', 'profvis'), repos='https://cloud.r-project.org/')"
 
 # Copy the app to the image
-COPY ./dashboard_app.R /srv/shiny-server/dashboard/app.R
-COPY ./heatmap_app.r /srv/shiny-server/heatmap/app.R
+COPY ./app.R /srv/shiny-server/app.R
 
 # Ensure data.RData is in the container
-COPY ./data.RData /srv/shiny-server/dashboard/data.RData
-COPY ./data.RData /srv/shiny-server/heatmap/data.RData
+COPY ./data.RData /srv/shiny-server/data.RData
 
 # Expose the port Shiny App runs on
 EXPOSE 3838
