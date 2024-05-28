@@ -307,8 +307,9 @@ primary_sponsors_votes <- primary_sponsors %>% left_join(votes_all,by="bill_id")
 bill_vote_all$session <- paste0(bill_vote_all$session_year,"-",gsub(" ","_", bill_vote_all$session_name))
 
 leg_votes_with2 <- parse_person_vote_session(text_paths) %>% 
+  mutate(roll_call_id = as.character(roll_call_id)) %>%  # Convert roll_call_id to character
   inner_join(legislators,by=c("people_id","session")) %>%
-  inner_join(bill_vote_all,by=c("roll_call_id","session"))
+  inner_join(bill_vote_all %>% mutate(roll_call_id = as.character(roll_call_id)), by = c("roll_call_id", "session"))
 
 ## analysis & prep ####
 
